@@ -44,18 +44,6 @@ function getZoningColorMap(): Record<string, string> {
   return colors
 }
 
-// Get color for a property value
-function getColorForProperty(
-  propertyValue: string | null | undefined,
-  colorProperty: string,
-  defaultColor: string
-): string {
-  if (!propertyValue) return defaultColor
-  
-  const colorMap = getZoningColorMap()
-  return colorMap[propertyValue] || colorMap[propertyValue.split(' ')[0]] || defaultColor
-}
-
 // Check if features have color properties (like fill, stroke, color, etc.)
 function hasColorProperty(data: GeoJSONData): string | null {
   if (!data.features || data.features.length === 0) return null
@@ -115,7 +103,7 @@ export default function MapComponent({
   const [popupInfo, setPopupInfo] = useState<{
     lng: number
     lat: number
-    properties: Record<string, any>
+    properties: Record<string, unknown>
   } | null>(null)
 
   // Seattle default view
@@ -158,7 +146,7 @@ export default function MapComponent({
   }, [layers])
 
   // Filter properties to show only the most important ones
-  const getImportantProperties = useCallback((properties: Record<string, any>) => {
+  const getImportantProperties = useCallback((properties: Record<string, unknown>) => {
     // Define important property keys (in order of importance)
     const importantKeys = [
       'ZONING',
@@ -172,7 +160,7 @@ export default function MapComponent({
       'PUBLIC_DESCRIPTION',
     ]
     
-    const filtered: Record<string, any> = {}
+    const filtered: Record<string, unknown> = {}
     
     // Add important properties that have values
     importantKeys.forEach(key => {
@@ -255,7 +243,7 @@ export default function MapComponent({
           
           // Determine fill color expression
           // Priority: 1) Original GeoJSON color property, 2) Data-driven by property, 3) Single color
-          const fillColor: string | any = originalColorProp
+          const fillColor: string | (string | string[])[] = originalColorProp
             ? ['get', originalColorProp] // Use original color from GeoJSON
             : (useDataDriven && layer.colorProperty
               ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
@@ -266,7 +254,7 @@ export default function MapComponent({
             (layer.data.features[0]?.properties?.['stroke'] ? 'stroke' : null) ||
             (layer.data.features[0]?.properties?.['strokeColor'] ? 'strokeColor' : null)
           
-          const outlineColor: string | any = strokeColorProp
+          const outlineColor: string | (string | string[])[] = strokeColorProp
             ? ['get', strokeColorProp]
             : (useDataDriven && layer.colorProperty
               ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
@@ -286,7 +274,7 @@ export default function MapComponent({
                     type="fill"
                     source={sourceId}
                     paint={{
-                      'fill-color': fillColor as any,
+                      'fill-color': fillColor,
                       'fill-opacity': opacity,
                     }}
                   />
@@ -295,7 +283,7 @@ export default function MapComponent({
                     type="line"
                     source={sourceId}
                     paint={{
-                      'line-color': outlineColor as any,
+                      'line-color': outlineColor,
                       'line-opacity': Math.min(opacity + 0.2, 1),
                       'line-width': 1.5,
                     }}
@@ -307,13 +295,13 @@ export default function MapComponent({
                   id={`layer-${layer.id}`}
                   type="circle"
                   source={sourceId}
-                  paint={{
-                    'circle-color': (useDataDriven && layer.colorProperty
+                    paint={{
+                      'circle-color': (useDataDriven && layer.colorProperty
                       ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
-                      : defaultColor) as any,
-                    'circle-opacity': opacity,
-                    'circle-radius': 5,
-                  }}
+                      : defaultColor),
+                      'circle-opacity': opacity,
+                      'circle-radius': 5,
+                    }}
                 />
               )}
               {layerType === 'line' && (
@@ -321,13 +309,13 @@ export default function MapComponent({
                   id={`layer-${layer.id}`}
                   type="line"
                   source={sourceId}
-                  paint={{
-                    'line-color': (useDataDriven && layer.colorProperty
+                    paint={{
+                      'line-color': (useDataDriven && layer.colorProperty
                       ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
-                      : defaultColor) as any,
-                    'line-opacity': opacity,
-                    'line-width': 2,
-                  }}
+                      : defaultColor),
+                      'line-opacity': opacity,
+                      'line-width': 2,
+                    }}
                 />
               )}
             </Source>
@@ -411,7 +399,7 @@ export default function MapComponent({
                         month: 'short', 
                         day: 'numeric' 
                       })
-                    } catch (e) {
+                    } catch {
                       // Keep original if parsing fails
                     }
                   }

@@ -1,4 +1,4 @@
-import { GeoJSONData, GeoJSONFeature } from '@/types/geojson'
+import { GeoJSONData } from '@/types/geojson'
 
 export interface HeatmapPoint {
   lat: number

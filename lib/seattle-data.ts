@@ -8,7 +8,7 @@ export interface SeattleDataset {
   filePath?: string
   color: string
   defaultVisible: boolean
-  category: 'zoning' | 'parks' | 'infrastructure' | 'demographics' | 'services' | 'transportation' | 'other'
+  category: 'zoning' | 'other'
   heatmapWeight?: string
   colorProperty?: string // Property name to use for data-driven coloring
   useDataDrivenColors?: boolean // Whether to use property-based colors instead of single color
@@ -33,7 +33,7 @@ export const SEATTLE_DATASETS: SeattleDataset[] = [
     url: 'https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/SDOT_Trees_CDL/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson',
     color: '#10b981',
     defaultVisible: false,
-    category: 'demographics',
+    category: 'other',
   },
   {
     id: 'curb-ramps',
@@ -42,7 +42,16 @@ export const SEATTLE_DATASETS: SeattleDataset[] = [
     url: 'https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/Curb_Ramps_CDL/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson',
     color: '#10b981',
     defaultVisible: true,
-    category: 'infrastructure',
+    category: 'other',
+  },
+  {
+    id: 'one-way-streets',
+    name: 'One-Way Streets',
+    description: 'Seattle one-way streets',
+    url: 'https://services.arcgis.com/ZOyb2t4B0UYuYNYH/arcgis/rest/services/One_Way_Streets_CDL/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson',
+    color: '#10b981',
+    defaultVisible: true,
+    category: 'other',
   },
 ]
 

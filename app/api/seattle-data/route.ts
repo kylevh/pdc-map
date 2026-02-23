@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { SEATTLE_DATASETS, getDatasetById } from '@/lib/seattle-data'
+import { getDatasetById } from '@/lib/seattle-data'
 import { transformGeoJSON } from '@/lib/coordinate-transform'
+import { GeoJSONData } from '@/types/geojson'
 
 /**
  * API route to fetch GeoJSON data
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    let data: any
+    let data: GeoJSONData & { crs?: { properties?: { name?: string } } }
 
     // Check if using local file or remote URL
     if (dataset.filePath) {
@@ -53,12 +54,12 @@ export async function GET(request: NextRequest) {
           const firstFeature = data.features[0]
           if (firstFeature.geometry && firstFeature.geometry.coordinates) {
             const coords = firstFeature.geometry.coordinates
-            let firstCoord: number[] = coords
-            while (Array.isArray(firstCoord) && firstCoord.length > 0) {
+            let firstCoord: number | number[] | number[][] | number[][][] | number[][][][] = coords
+            while (Array.isArray(firstCoord) && firstCoord.length > 0 && typeof firstCoord[0] !== 'number') {
               firstCoord = firstCoord[0]
             }
             
-            if (firstCoord && firstCoord.length >= 2) {
+            if (Array.isArray(firstCoord) && firstCoord.length >= 2 && typeof firstCoord[0] === 'number' && typeof firstCoord[1] === 'number') {
               const [x, y] = firstCoord
               if (Math.abs(x) > 100000 || Math.abs(y) > 100000) {
                 needsTransformation = true

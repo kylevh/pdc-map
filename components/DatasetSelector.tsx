@@ -46,7 +46,7 @@ export default function DatasetSelector({
       </p>
       {selectedDatasets.length === 0 && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-800">
-          <strong>No layers loaded.</strong> Click "Add" on any dataset below to start visualizing data.
+          <strong>No layers loaded.</strong> Click &quot;Add&quot; on any dataset below to start visualizing data.
         </div>
       )}
 
