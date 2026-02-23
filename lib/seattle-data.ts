@@ -19,7 +19,7 @@ export const SEATTLE_DATASETS: SeattleDataset[] = [
     id: 'zoning',
     name: 'Zoning Districts',
     description: 'Seattle zoning districts and land use designations',
-    filePath: 'lib/GeoJson/zoning.geojson',
+    filePath: 'public/data/zoning.geojson',
     color: '#3b82f6',
     defaultVisible: false,
     category: 'zoning',

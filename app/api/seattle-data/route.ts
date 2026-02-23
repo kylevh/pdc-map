@@ -34,9 +34,31 @@ export async function GET(request: NextRequest) {
     // Check if using local file or remote URL
     if (dataset.filePath) {
       // Read from local file
+      // Try multiple path resolutions for Vercel compatibility
+      // On Vercel, process.cwd() should point to the project root
+      const possiblePaths = [
+        join(process.cwd(), dataset.filePath),
+        // Fallback: try from project root if cwd is different
+        dataset.filePath.startsWith('/') ? dataset.filePath : join(process.cwd(), dataset.filePath),
+      ]
+      
       try {
-        const filePath = join(process.cwd(), dataset.filePath)
-        const fileContents = await readFile(filePath, 'utf-8')
+        let fileContents: string | null = null
+        
+        for (const filePath of possiblePaths) {
+          try {
+            fileContents = await readFile(filePath, 'utf-8')
+            break
+          } catch {
+            // Try next path
+            continue
+          }
+        }
+        
+        if (!fileContents) {
+          throw new Error(`File not found. Tried paths: ${possiblePaths.join(', ')}`)
+        }
+        
         data = JSON.parse(fileContents)
         
         // Check if data needs coordinate transformation
@@ -75,12 +97,20 @@ export async function GET(request: NextRequest) {
           delete data.crs
         }
       } catch (error) {
-        console.error(`[API] Failed to read local file for ${datasetId}:`, error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+        const attemptedPaths = possiblePaths.join(', ')
+        console.error(`[API] Failed to read local file for ${datasetId}:`, {
+          error: errorMessage,
+          filePath: dataset.filePath,
+          attemptedPaths,
+          cwd: process.cwd(),
+        })
         return NextResponse.json(
           { 
-            error: `Failed to read local file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            error: `Failed to read local file: ${errorMessage}`,
             filePath: dataset.filePath,
-            hint: 'Check that the file exists at the specified path',
+            attemptedPaths,
+            hint: 'Check that the file exists at the specified path. On Vercel, ensure the file is included in the deployment.',
           },
           { status: 500 }
         )
