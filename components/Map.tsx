@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import Map, { Source, Layer, Popup, NavigationControl, FullscreenControl } from 'react-map-gl/maplibre'
 import type { MapLayerMouseEvent } from 'react-map-gl/maplibre'
+import type { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { GeoJSONData, LayerConfig } from '@/types/geojson'
 import { extractHeatmapPoints, generateHeatmapData } from '@/lib/heatmap'
@@ -243,10 +244,10 @@ export default function MapComponent({
           
           // Determine fill color expression
           // Priority: 1) Original GeoJSON color property, 2) Data-driven by property, 3) Single color
-          const fillColor: string | (string | string[])[] = originalColorProp
-            ? ['get', originalColorProp] // Use original color from GeoJSON
+          const fillColor: string | ExpressionSpecification = originalColorProp
+            ? (['get', originalColorProp] as ExpressionSpecification) // Use original color from GeoJSON
             : (useDataDriven && layer.colorProperty
-              ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
+              ? (getDataDrivenColorExpression(layer.colorProperty, defaultColor) as ExpressionSpecification)
               : defaultColor)
 
           // For outline, check for stroke/strokeColor, otherwise use fill color
@@ -254,10 +255,10 @@ export default function MapComponent({
             (layer.data.features[0]?.properties?.['stroke'] ? 'stroke' : null) ||
             (layer.data.features[0]?.properties?.['strokeColor'] ? 'strokeColor' : null)
           
-          const outlineColor: string | (string | string[])[] = strokeColorProp
-            ? ['get', strokeColorProp]
+          const outlineColor: string | ExpressionSpecification = strokeColorProp
+            ? (['get', strokeColorProp] as ExpressionSpecification)
             : (useDataDriven && layer.colorProperty
-              ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
+              ? (getDataDrivenColorExpression(layer.colorProperty, defaultColor) as ExpressionSpecification)
               : defaultColor)
 
           return (
@@ -297,7 +298,7 @@ export default function MapComponent({
                   source={sourceId}
                     paint={{
                       'circle-color': (useDataDriven && layer.colorProperty
-                      ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
+                      ? (getDataDrivenColorExpression(layer.colorProperty, defaultColor) as ExpressionSpecification)
                       : defaultColor),
                       'circle-opacity': opacity,
                       'circle-radius': 5,
@@ -311,7 +312,7 @@ export default function MapComponent({
                   source={sourceId}
                     paint={{
                       'line-color': (useDataDriven && layer.colorProperty
-                      ? getDataDrivenColorExpression(layer.colorProperty, defaultColor)
+                      ? (getDataDrivenColorExpression(layer.colorProperty, defaultColor) as ExpressionSpecification)
                       : defaultColor),
                       'line-opacity': opacity,
                       'line-width': 2,

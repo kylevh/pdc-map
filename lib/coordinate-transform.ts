@@ -45,7 +45,7 @@ export function transformGeoJSON(
         ...feature,
         geometry: {
           ...feature.geometry,
-          coordinates: transformCoordinates(feature.geometry.coordinates, fromCRS, toCRS),
+          coordinates: transformCoordinates(feature.geometry.coordinates, fromCRS, toCRS) as number[] | number[][] | number[][][] | number[][][][],
         },
       }
     }),
